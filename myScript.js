@@ -166,6 +166,7 @@ var createPivotNode = function(obj, title){
     obj.PreviousSibling=null;
     obj.NextSibling=null;
     obj.Parent =null;
+    obj.previousAngle = 0;
     obj.connected_to = [];               //BODY PARTS THAT THE PIVOT IS IMMEDIATELY CONNECTED TO
     obj.title = title;
 };
@@ -217,7 +218,7 @@ AddPivotChild(pivot_lower_right_leg, pivot_upper_right_leg);
 
 
 pivot_top_head.connected_to.push(head);
-pivot_neck.connected_to.push(head, upper_left_hand, upper_right_hand);
+pivot_neck.connected_to.push(head, upper_left_hand, upper_right_hand, upper_back);
 pivot_midback.connected_to.push(upper_back, lower_back);
 pivot_lowback.connected_to.push(lower_back, upper_left_leg, upper_right_leg);
 
@@ -242,15 +243,23 @@ while(queue.length > 0){
     var obj = queue.pop();
     obj.onMouseDrag = function(event){
         var obj = event.target;
+        var children;
         console.log(obj.title);
         var current_pos = event.point;
         var previous_vector = obj.position - obj.Parent.position;
         console.log(obj.Parent.title);
         console.log(previous_vector.x + "," + previous_vector.y);
-        var new_vector = current_pos - obj.position;
+        var new_vector = current_pos - obj.Parent.position;
         console.log(new_vector.x + "," + new_vector.y);
         var angle = previous_vector.getDirectedAngle(new_vector);
-        var children = getAllChildren(obj);
+        var rotate_by = angle - obj.previousAngle;
+        obj.previousAngle = angle;
+        console.log(angle);
+        if(obj.FirstChild == null){
+            children = [obj];
+        }else{
+            children = getAllChildren(obj);
+        }
         console.log(children);
         var connected_to_union = obj.connected_to;
         console.log(connected_to_union);
@@ -260,7 +269,7 @@ while(queue.length > 0){
         console.log(connected_to_union);
         for(var j = 0;j < connected_to_union.length; j++){
             part = connected_to_union[j];
-            part.rotate(angle, obj.Parent.position);
+            part.rotate(rotate_by, obj.Parent.position);
         }
     };
     var immediate_children = getImmediateChildren(obj);
@@ -293,7 +302,12 @@ function getAllChildren(obj){
     }
     var node = obj.FirstChild;
     while(node != null){
-        children.push(getAllChildren(node));
+        bacche = getAllChildren(node);
+        console.log(bacche);
+        for(var i = 0;i < bacche.length; i++){
+            children.push(bacche[i]);
+        }
+        children.push(node);
         node = node.NextSibling;
     }
     return children;
