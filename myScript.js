@@ -159,6 +159,7 @@ pivot_midback.bringToFront();
 pivot_lowback.bringToFront();
 pivot_neck.bringToFront();
 
+
 var createPivotNode = function(obj, title){
 
     obj.FirstChild=null;
@@ -234,6 +235,9 @@ pivot_upper_right_hand.connected_to.push(upper_right_hand, lower_right_hand);
 pivot_lower_right_hand.connected_to.push(lower_right_hand);
 
 
+
+
+
 var figure_group = new Group([head, upper_left_hand, upper_right_hand, lower_left_hand, lower_right_hand, upper_back, lower_back, upper_left_leg, upper_right_leg, lower_left_leg, lower_right_leg]);
 
 var queue = [pivot_lowback];
@@ -241,17 +245,17 @@ var queue = [pivot_lowback];
 while(queue.length > 0){
     console.log(queue);
     var obj = queue.pop();
-    obj.onMouseDrag = function(event){
-        var obj = event.target;
+    obj.Animate = function(obj, angle){
+//        var obj = event.target;
         var children;
-        console.log(obj.title);
-        var current_pos = event.point;
-        var previous_vector = obj.position - obj.Parent.position;
-        console.log(obj.Parent.title);
-        console.log(previous_vector.x + "," + previous_vector.y);
-        var new_vector = current_pos - obj.Parent.position;
-        console.log(new_vector.x + "," + new_vector.y);
-        var angle = previous_vector.getDirectedAngle(new_vector);
+//        console.log(obj.title);
+//        var current_pos = event.point;
+//        var previous_vector = obj.position - obj.Parent.position;
+//        console.log(obj.Parent.title);
+//        console.log(previous_vector.x + "," + previous_vector.y);
+//        var new_vector = current_pos - obj.Parent.position;
+//        console.log(new_vector.x + "," + new_vector.y);
+//        var angle = previous_vector.getDirectedAngle(new_vector);
         var rotate_by = angle - obj.previousAngle;
         obj.previousAngle = angle;
         console.log(angle);
@@ -262,7 +266,7 @@ while(queue.length > 0){
         }
         console.log(children);
         var connected_to_union = obj.connected_to;
-        console.log(connected_to_union);
+        //console.log(connected_to_union);
         for(var i = 0;i < children.length; i++){
             connected_to_union = arrayUnion(connected_to_union, children[i].connected_to, areObjectsEqual);
         }
@@ -271,6 +275,11 @@ while(queue.length > 0){
             part = connected_to_union[j];
             part.rotate(rotate_by, obj.Parent.position);
         }
+
+//        for(var j = 0;j < children.length; j++){
+//            pivot = children[j];
+//            pivot.rotate(rotate_by, obj.Parent.position);
+//        }
     };
     var immediate_children = getImmediateChildren(obj);
     for(var k = 0;k < immediate_children.length; k++){
@@ -328,6 +337,28 @@ function arrayUnion(arr1, arr2, equalityFunc) {
 
     return union;
 }
+
+var right_move = false;
+var left_move = false;
+
+function onFrame(event) {
+    if(pivot_top_head.previousAngle < 30 && right_move == false){
+        pivot_top_head.Animate(pivot_top_head, pivot_top_head.previousAngle + 1);
+    }
+    if(pivot_top_head.previousAngle == 30){
+        right_move = true;
+        left_move= false;
+    }
+    if(pivot_top_head.previousAngle > -30 && left_move == false && right_move == true){
+        pivot_top_head.Animate(pivot_top_head, pivot_top_head.previousAngle - 1);
+    }
+    if(pivot_top_head.previousAngle == -30){
+        left_move = true;
+        right_move = false;
+    }
+
+}
+
 
 
 //
